@@ -20,6 +20,7 @@ contract SimpleGovernance is ISimpleGovernance {
         _actionCounter = 1;
     }
 
+    // ! Anyone can queue and execute ???
     function queueAction(address target, uint128 value, bytes calldata data) external returns (uint256 actionId) {
         if (!_hasEnoughVotes(msg.sender)) {
             revert NotEnoughVotes(msg.sender);
@@ -79,6 +80,7 @@ contract SimpleGovernance is ISimpleGovernance {
         return _actionCounter;
     }
 
+    // ! CHECK THIS !!!
     /**
      * @dev an action can only be executed if:
      * 1) it's never been executed before and
